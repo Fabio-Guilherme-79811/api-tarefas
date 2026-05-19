@@ -10,9 +10,9 @@ export interface Tarefa {
 }
 
 export interface CriarTarefaBody {
-    titulo: string;             // obrigatório
-    descricao?: string;         // opcional
-    prioridade: "alta" | "media" | "baixa";  // obrigatório
+    titulo: string;          
+    descricao?: string;         
+    prioridade: "alta" | "media" | "baixa";  
 }
 
 export interface AtualizarTarefaBody {
