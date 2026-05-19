@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarefas</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1> Tarefas</h1>
+  <a href="/pagina/cadastrar">+ Nova Tarefa</a>
+
+  <% if (tarefas.length === 0) { %>
+    <p>Nenhuma tarefa cadastrada.</p>
+  <% } else { %>
+    <ul>
+      <% tarefas.forEach(tarefa => { %>
+        <li>
+          <a href="/pagina/tarefas/<%= tarefa.id %>">
+            <%= tarefa.titulo %>
+          </a>
+          — <strong><%= tarefa.prioridade %></strong>
+          — <%= tarefa.concluida ? "Concluída" : "Pendente" %>
+
+          <form action="/tarefas/<%= tarefa.id %>/concluir" method="POST" style="display:inline">
+            <button type="submit"><%= tarefa.concluida ? "Reabrir" : "Concluir" %></button>
+          </form>
+
+          <form action="/tarefas/<%= tarefa.id %>/excluir" method="POST" style="display:inline">
+            <button type="submit">Excluir</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</body>
+</html>
