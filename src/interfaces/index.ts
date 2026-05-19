@@ -16,9 +16,10 @@ export interface CriarTarefaBody {
 }
 
 export interface AtualizarTarefaBody {
-    titulo?: string; descricao?: string;
-    prioridade?: "alta" | "media" | "baixa";
-    concluida?: boolean;
+    titulo?: string;
+    descricao?: string;
+    prioridade?: "alta" | "media" | "baixa" | undefined;
+    concluida?: boolean | undefined;
 }
 
 export interface TarefaParams {
