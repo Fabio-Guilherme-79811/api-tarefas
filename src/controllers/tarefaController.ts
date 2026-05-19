@@ -62,7 +62,7 @@ export async function atualizar(req: Request<TarefaParams, {}, AtualizarTarefaBo
       res.status(400).json({ sucesso: false, erros } as ApiResponse<null>);
       return;
     }
-    
+
     const dadosAtualizacao: Partial<Tarefa> = {};
     
     if (titulo !== undefined) dadosAtualizacao.titulo = titulo;
@@ -98,5 +98,90 @@ export async function remover(req: Request<TarefaParams>, res: Response) {
     res.status(204).send();
   } catch {
     res.status(500).json({ sucesso: false, erro: "Erro interno" });
+  }
+}
+// PÁGINAS EJS
+
+export async function listarPagina(req: Request, res: Response) {
+  try {
+    const tarefas = await TarefaModel.listarTodas();
+    res.render("tarefas", { tarefas });
+  } catch {
+    res.status(500).render("erro", { mensagem: "Erro ao carregar tarefas." });
+  }
+}
+
+export async function detalhePagina(req: Request<TarefaParams>, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).render("erro", { mensagem: "ID inválido." });
+      return;
+    }
+    const tarefa = await TarefaModel.buscarPorId(id);
+    if (!tarefa) {
+      res.status(404).render("erro", { mensagem: "Tarefa não encontrada." });
+      return;
+    }
+    res.render("detalhe", { tarefa });
+  } catch {
+    res.status(500).render("erro", { mensagem: "Erro ao carregar tarefa." });
+  }
+}
+
+export async function cadastrarPagina(req: Request, res: Response) {
+  res.render("cadastrar", { erro: null });
+}
+
+export async function cadastrarForm(req: Request, res: Response) {
+  try {
+    const { titulo, descricao, prioridade } = req.body;
+    const erros: string[] = [];
+    if (!titulo || typeof titulo !== "string") erros.push("Título é obrigatório.");
+    if (!["alta", "media", "baixa"].includes(prioridade)) erros.push("Prioridade inválida.");
+    if (erros.length > 0) {
+      res.status(400).render("cadastrar", { erro: erros.join(" ") });
+      return;
+    }
+    const nova = await TarefaModel.criar({ titulo, descricao, prioridade });
+    res.redirect(`/pagina/tarefas/${nova.id}`);
+  } catch {
+    res.status(500).render("erro", { mensagem: "Erro ao cadastrar tarefa." });
+  }
+}
+
+export async function concluirForm(req: Request<TarefaParams>, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).render("erro", { mensagem: "ID inválido." });
+      return;
+    }
+    const tarefa = await TarefaModel.alternarConclusao(id);
+    if (!tarefa) {
+      res.status(404).render("erro", { mensagem: "Tarefa não encontrada." });
+      return;
+    }
+    res.redirect("/pagina/tarefas");
+  } catch {
+    res.status(500).render("erro", { mensagem: "Erro ao atualizar tarefa." });
+  }
+}
+
+export async function excluirForm(req: Request<TarefaParams>, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).render("erro", { mensagem: "ID inválido." });
+      return;
+    }
+    const removida = await TarefaModel.remover(id);
+    if (!removida) {
+      res.status(404).render("erro", { mensagem: "Tarefa não encontrada." });
+      return;
+    }
+    res.redirect("/pagina/tarefas");
+  } catch {
+    res.status(500).render("erro", { mensagem: "Erro ao excluir tarefa." });
   }
 }
